@@ -1,34 +1,41 @@
 import Data.List
 
-fib :: (Eq a, Num a, Num p) => a -> p
-fib 0 = 0
-fib 1 = 1
-fib n = fib (n -1) + fib (n -2)
-
-doubleMe :: Num a => a -> a
-doubleMe x = x + x
-
-doubleUs :: Num a => a -> a -> a
-doubleUs x y = do
-  let doubleX = doubleMe x
-  let doubleY = doubleMe y
-  doubleX + doubleY
-
 readInput :: FilePath -> IO [Int]
 readInput fileName = do
   content <- readFile fileName
   let integers = map read (lines content) :: [Int]
   pure integers
 
-solve :: [Int] -> Int -> Int -> Int
-solve numbers i j = do
-  let sorted = sort numbers
-      iNum = sorted !! i
-      jNum = sorted !! j
-      sum = iNum + jNum
-  if sum == 2020 then iNum * jNum else if sum > 2020 then solve numbers i (j -1) else solve numbers (i + 1) j
+pairsOfSum :: [Int] -> Int -> Maybe (Int, Int)
+pairsOfSum numbers desiredSum = pairsOfSum' numbers desiredSum 0 (length numbers - 1)
+
+pairsOfSum' :: [Int] -> Int -> Int -> Int -> Maybe (Int, Int)
+pairsOfSum' numbers desiredSum i j
+  | i >= j = Nothing
+  | otherwise = do
+    let sum = numbers !! i + numbers !! j
+    if sum == desiredSum
+      then Just (i, j)
+      else
+        if sum > desiredSum
+          then pairsOfSum' numbers desiredSum i (j - 1)
+          else pairsOfSum' numbers desiredSum (i + 1) j
+
+solvePart1 :: [Int] -> String
+solvePart1 numbers = do
+  case pairsOfSum numbers 2020 of
+    Just (i, j) -> show (numbers !! i * numbers !! j)
+    Nothing -> "Could not calculate the answer"
+
+solvePart2 :: [Int] -> String
+solvePart2 [] = "Could not calculate the answer"
+solvePart2 (x : xs) = do
+  case pairsOfSum xs (2020 - x) of
+    Just (i, j) -> show (x * xs !! i * xs !! j)
+    Nothing -> solvePart2 xs
 
 main = do
   numbers <- readInput "day1.in"
-  let answer = solve numbers 0 (length numbers - 1)
-  putStrLn ("Answer is " ++ show answer)
+  let sortedNumbers = sort numbers
+  putStrLn ("Part 1 answer - " ++ solvePart1 sortedNumbers)
+  putStrLn ("Part 2 answer - " ++ solvePart2 sortedNumbers)
