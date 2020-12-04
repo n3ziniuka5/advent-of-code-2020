@@ -1,5 +1,13 @@
 #!/usr/bin/env bash
-set -euxo pipefail
+set -euo pipefail
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
+if [ $# -eq 0 ]; then
+    echo "usage: ./run {day}"
+    echo "for example: ./run 1"
+    exit 1
+fi
 
 re='^[0-9]+$'
 if ! [[ $1 =~ $re ]] ; then
@@ -7,8 +15,11 @@ if ! [[ $1 =~ $re ]] ; then
    exit 1
 fi
 
-script=day$1.hs
-binary=./day$1
+binaries=$DIR/bin
+mkdir -p $binaries
 
-ghc $script
-$binary
+script=$DIR/day$1.hs
+binary=$binaries/day$1
+
+ghc $script -hidir $binaries -odir $binaries -o $binary
+time $binary

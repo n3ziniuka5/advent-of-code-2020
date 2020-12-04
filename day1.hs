@@ -35,7 +35,7 @@ solvePart2 (x : xs) = do
     Nothing -> solvePart2 xs
 
 main = do
-  numbers <- readInput "day1.in"
+  numbers <- readInput "inputs/day1.in"
   let sortedNumbers = sort numbers
   putStrLn ("Part 1 answer - " ++ solvePart1 sortedNumbers)
   putStrLn ("Part 2 answer - " ++ solvePart2 sortedNumbers)
